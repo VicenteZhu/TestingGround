@@ -1,43 +1,43 @@
 # TestingGround
 
-用于 **Appium 自动化测试**的 React Native 跨平台（Android / iOS）被测应用，提供登录、Todo 列表、表单、计算器等典型 UI 场景。
+A cross-platform (Android / iOS) React Native app built as an **Appium automation testing target**, providing typical UI scenarios: login, todo list, form, and calculator.
 
 ---
 
-## 环境要求
+## Prerequisites
 
-### 所有平台
+### All Platforms
 
-| 工具 | 版本要求 | 安装方式 |
+| Tool | Version | Install |
 |------|---------|---------|
-| Node.js | >= 22.11 | [nvm](https://github.com/nvm-sh/nvm) 或 [官网](https://nodejs.org) |
-| npm | >= 10 | 随 Node.js 附带 |
+| Node.js | >= 22.11 | [nvm](https://github.com/nvm-sh/nvm) or [official site](https://nodejs.org) |
+| npm | >= 10 | Bundled with Node.js |
 | Watchman | latest | `brew install watchman` |
 | Ruby | >= 3.0 | `brew install ruby` |
 | Bundler | latest | `gem install bundler` |
 
 ### Android
 
-| 工具 | 版本要求 | 安装方式 |
+| Tool | Version | Install |
 |------|---------|---------|
 | JDK | 17 | `brew install openjdk@17` |
-| Android Studio | latest | [官网下载](https://developer.android.com/studio) |
+| Android Studio | latest | [Download](https://developer.android.com/studio) |
 | Android SDK Platform | 34+ | Android Studio SDK Manager |
 | Android SDK Build-Tools | 34.0.0 | Android Studio SDK Manager |
 | Android Emulator (x86_64) | API 34+ | Android Studio AVD Manager |
 
-### iOS（仅 macOS）
+### iOS (macOS only)
 
-| 工具 | 版本要求 | 安装方式 |
+| Tool | Version | Install |
 |------|---------|---------|
 | Xcode | 16+ | Mac App Store |
 | CocoaPods | latest | `sudo gem install cocoapods` |
 
 ---
 
-## 环境安装步骤
+## Setup
 
-### 1. 安装 nvm 和 Node.js
+### 1. Install nvm and Node.js
 
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
@@ -46,7 +46,7 @@ nvm install 22
 nvm use 22
 ```
 
-### 2. 安装 JDK 17
+### 2. Install JDK 17
 
 ```bash
 brew install openjdk@17
@@ -54,13 +54,13 @@ echo 'export JAVA_HOME="/usr/local/opt/openjdk@17"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-### 3. 安装 Watchman
+### 3. Install Watchman
 
 ```bash
 brew install watchman
 ```
 
-### 4. 安装 Ruby（macOS 系统自带版本过低）
+### 4. Install Ruby (macOS system Ruby may be too old)
 
 ```bash
 brew install ruby
@@ -68,16 +68,16 @@ echo 'export PATH="/usr/local/opt/ruby/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-### 5. 安装 Android Studio
+### 5. Install Android Studio
 
-从 [developer.android.com/studio](https://developer.android.com/studio) 下载安装。
+Download from [developer.android.com/studio](https://developer.android.com/studio).
 
-首次启动后，通过 SDK Manager 安装：
-- **SDK Platforms**: Android 15.0 (API 35) 或更高
-- **SDK Tools**: Android SDK Build-Tools、Android Emulator、Android SDK Platform-Tools
+After the first launch, install via SDK Manager:
+- **SDK Platforms**: Android 15.0 (API 35) or higher
+- **SDK Tools**: Android SDK Build-Tools, Android Emulator, Android SDK Platform-Tools
 - **System Image**: Intel x86_64 System Image (API 35)
 
-配置环境变量：
+Configure environment variables:
 
 ```bash
 echo 'export ANDROID_HOME="$HOME/Library/Android/sdk"' >> ~/.zshrc
@@ -86,175 +86,175 @@ echo 'export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$ANDROID_
 source ~/.zshrc
 ```
 
-创建 Android 模拟器（可选）：
+Create an Android emulator (optional):
 
 ```bash
 sdkmanager "system-images;android-35;google_apis;x86_64"
 avdmanager create avd -n Pixel_10_Pro_XL -k "system-images;android-35;google_apis;x86_64" -d "pixel_10_pro_xl"
 ```
 
-### 6. 安装 Xcode（iOS，仅 macOS）
+### 6. Install Xcode (iOS, macOS only)
 
-从 Mac App Store 搜索安装 Xcode。安装后启动一次以同意协议，然后切换命令行工具路径：
+Install from Mac App Store. Launch once to accept the license, then switch the command-line tools path:
 
 ```bash
 sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 ```
 
-### 7. 安装 CocoaPods（iOS，仅 macOS）
+### 7. Install CocoaPods (iOS, macOS only)
 
 ```bash
 sudo gem install cocoapods
 ```
 
-如果 `pod` 命令提示找不到，将 Ruby gems bin 目录加入 PATH：
+If the `pod` command is not found, add the Ruby gems bin directory to PATH:
 
 ```bash
 echo 'export PATH="/usr/local/lib/ruby/gems/$(ruby -e "puts Gem.ruby_version")/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-### 8. 验证环境
+### 8. Verify
 
 ```bash
 node --version     # v22.x
 java -version      # openjdk 17.x
 adb --version      # Android Debug Bridge
-xcrun simctl list devices available  # iOS 模拟器列表
+xcrun simctl list devices available  # iOS simulator list
 watchman --version #
 pod --version      # CocoaPods
-emulator -list-avds # Android 模拟器
+emulator -list-avds # Android emulator
 ```
 
 ---
 
-## 快速开始
+## Quick Start
 
 ```bash
-# 进入项目目录
+# Navigate to the project directory
 cd TestingGround
 
-# 安装依赖
+# Install dependencies
 npm install
 
-# 安装 iOS CocoaPods
+# Install iOS CocoaPods
 cd ios && pod install && cd ..
 
-# 启动 Metro
+# Start Metro
 npm start
 
-# 新终端运行 Android
+# In a new terminal, run Android
 npm run android
 
-# 新终端运行 iOS
+# In a new terminal, run iOS
 npm run ios
 ```
 
-首次 Android 构建约 5-10 分钟，后续增量构建约 1 分钟。
+The first Android build takes about 5-10 minutes; subsequent incremental builds take about 1 minute.
 
 ---
 
-## 项目结构
+## Project Structure
 
 ```
 TestingGround/
 ├── src/
 │   ├── screens/
-│   │   ├── LoginScreen.tsx        # 登录页 (admin / 123456)
-│   │   ├── HomeScreen.tsx         # 导航仪表盘
-│   │   ├── TodoListScreen.tsx     # Todo 增删勾选
-│   │   ├── FormScreen.tsx         # 注册表单 (6 种控件)
-│   │   └── CalculatorScreen.tsx   # 四则运算计算器
+│   │   ├── LoginScreen.tsx        # Login (admin / 123456)
+│   │   ├── HomeScreen.tsx         # Navigation dashboard
+│   │   ├── TodoListScreen.tsx     # Todo list: add, delete, toggle
+│   │   ├── FormScreen.tsx         # Registration form (6 control types)
+│   │   └── CalculatorScreen.tsx   # Basic arithmetic calculator
 │   └── navigation/
-│       └── AppNavigator.tsx       # 5 页面导航栈
-├── android/                       # Android 原生工程
-├── ios/                           # iOS 原生工程 (CocoaPods)
-├── App.tsx                        # 入口
+│       └── AppNavigator.tsx       # 5-screen navigation stack
+├── android/                       # Android native project
+├── ios/                           # iOS native project (CocoaPods)
+├── App.tsx                        # Entry point
 └── package.json
 ```
 
 ---
 
-## 页面与功能
+## Pages & Features
 
-| 页面 | 功能 | 交互元素数 |
-|------|------|-----------|
-| LoginScreen | 账号密码登录校验 | 4 |
-| HomeScreen | 各功能页入口 + 退出登录 | 4 |
-| TodoListScreen | 列表增删、勾选完成 | 动态 (每项 4) |
-| FormScreen | TextInput / Radio / Switch / Chip 选择 / 提交回显 | 12+ |
-| CalculatorScreen | 数字输入、四则运算、等号、清除 | 17 |
+| Page | Features | Interactive Elements |
+|------|----------|---------------------|
+| LoginScreen | Username/password validation | 4 |
+| HomeScreen | Feature navigation + logout | 4 |
+| TodoListScreen | List CRUD, checkbox toggle | Dynamic (4 per item) |
+| FormScreen | TextInput / Radio / Switch / Chip selection / Submit | 12+ |
+| CalculatorScreen | Digit input, 4 operations, equals, clear | 17 |
 
-内建账号: `admin` / `123456`
+Built-in credentials: `admin` / `123456`
 
 ---
 
-## Appium 元素定位参考
+## Appium Element Locators
 
-所有可交互元素统一设置 `accessibilityLabel` + `testID`，Appium 使用 **Accessibility ID** 策略，Android / iOS 通用。
+All interactive elements use `accessibilityLabel` + `testID` with identical values. Appium uses the **Accessibility ID** strategy, which works on both Android and iOS.
 
-### 登录页 (LoginScreen)
+### LoginScreen
 
-| 元素 | accessibility id |
-|------|-----------------|
-| 用户名输入框 | `usernameInput` |
-| 密码输入框 | `passwordInput` |
-| 登录按钮 | `loginButton` |
-| 错误提示 | `loginError` |
+| Element | Accessibility ID |
+|---------|-----------------|
+| Username input | `usernameInput` |
+| Password input | `passwordInput` |
+| Login button | `loginButton` |
+| Error message | `loginError` |
 
-### 首页 (HomeScreen)
+### HomeScreen
 
-| 元素 | accessibility id |
-|------|-----------------|
-| 进入 Todo 列表 | `navTodoList` |
-| 进入表单 | `navForm` |
-| 进入计算器 | `navCalculator` |
-| 退出登录 | `logoutButton` |
+| Element | Accessibility ID |
+|---------|-----------------|
+| Navigate to Todo | `navTodoList` |
+| Navigate to Form | `navForm` |
+| Navigate to Calculator | `navCalculator` |
+| Logout | `logoutButton` |
 
-### Todo 列表页 (TodoListScreen)
+### TodoListScreen
 
-| 元素 | accessibility id |
-|------|-----------------|
-| 输入框 | `todoInput` |
-| 添加按钮 | `addTodoButton` |
-| 列表容器 | `todoList` |
-| 第 i 项文本 | `todoText_{i}` |
-| 第 i 项勾选框 | `todoCheckbox_{i}` |
-| 第 i 项删除 | `todoDelete_{i}` |
+| Element | Accessibility ID |
+|---------|-----------------|
+| Input field | `todoInput` |
+| Add button | `addTodoButton` |
+| List container | `todoList` |
+| Item text (index i) | `todoText_{i}` |
+| Item checkbox (index i) | `todoCheckbox_{i}` |
+| Item delete (index i) | `todoDelete_{i}` |
 
-> i 从 0 开始
+> Index `i` starts from 0
 
-### 表单页 (FormScreen)
+### FormScreen
 
-| 元素 | accessibility id |
-|------|-----------------|
-| 姓名输入 | `nameInput` |
-| 邮箱输入 | `emailInput` |
-| 性别 - 男 | `genderRadioMale` |
-| 性别 - 女 | `genderRadioFemale` |
-| 订阅开关 | `subscribeSwitch` |
-| 国家选择 (China) | `country_China` |
-| 国家选择 (United States) | `country_UnitedStates` |
-| 国家选择 (Japan) | `country_Japan` |
-| 国家选择 (Germany) | `country_Germany` |
-| 国家选择 (Other) | `country_Other` |
-| 提交按钮 | `submitButton` |
-| 回显结果区域 | `formResult` |
+| Element | Accessibility ID |
+|---------|-----------------|
+| Name input | `nameInput` |
+| Email input | `emailInput` |
+| Gender - Male | `genderRadioMale` |
+| Gender - Female | `genderRadioFemale` |
+| Subscribe switch | `subscribeSwitch` |
+| Country - China | `country_China` |
+| Country - United States | `country_UnitedStates` |
+| Country - Japan | `country_Japan` |
+| Country - Germany | `country_Germany` |
+| Country - Other | `country_Other` |
+| Submit button | `submitButton` |
+| Result display | `formResult` |
 
-### 计算器页 (CalculatorScreen)
+### CalculatorScreen
 
-| 元素 | accessibility id |
-|------|-----------------|
-| 显示屏 | `calcDisplay` |
-| 数字 0-9 | `calcDigit_0` ~ `calcDigit_9` |
-| 加 | `calcAdd` |
-| 减 | `calcSubtract` |
-| 乘 | `calcMultiply` |
-| 除 | `calcDivide` |
-| 等号 | `calcEquals` |
-| 清除 | `calcClear` |
+| Element | Accessibility ID |
+|---------|-----------------|
+| Display | `calcDisplay` |
+| Digits 0-9 | `calcDigit_0` ~ `calcDigit_9` |
+| Add | `calcAdd` |
+| Subtract | `calcSubtract` |
+| Multiply | `calcMultiply` |
+| Divide | `calcDivide` |
+| Equals | `calcEquals` |
+| Clear | `calcClear` |
 
-### Appium 示例
+### Appium Examples
 
 ```python
 from appium.webdriver.common.appiumby import AppiumBy
@@ -264,6 +264,6 @@ driver.find_element(AppiumBy.ACCESSIBILITY_ID, "usernameInput").send_keys("admin
 driver.find_element(AppiumBy.ACCESSIBILITY_ID, "passwordInput").send_keys("123456")
 driver.find_element(AppiumBy.ACCESSIBILITY_ID, "loginButton").click()
 
-# iOS — 相同策略
+# iOS — same strategy
 driver.find_element(AppiumBy.ACCESSIBILITY_ID, "usernameInput").send_keys("admin")
 ```
