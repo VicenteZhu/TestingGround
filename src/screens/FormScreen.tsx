@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   Switch,
   ScrollView,
   StyleSheet,
@@ -19,9 +19,9 @@ export default function FormScreen() {
   const [country, setCountry] = useState('');
   const [showResult, setShowResult] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     setShowResult(true);
-  };
+  }, []);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -60,7 +60,7 @@ export default function FormScreen() {
       {/* Gender */}
       <Text style={styles.label}>Gender</Text>
       <View style={styles.radioGroup}>
-        <TouchableOpacity
+        <Pressable
           style={styles.radioItem}
           onPress={() => {
             setGender('Male');
@@ -76,9 +76,9 @@ export default function FormScreen() {
             {gender === 'Male' && <View style={styles.radioInner} />}
           </View>
           <Text style={styles.radioLabel}>Male</Text>
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity
+        <Pressable
           style={styles.radioItem}
           onPress={() => {
             setGender('Female');
@@ -94,7 +94,7 @@ export default function FormScreen() {
             {gender === 'Female' && <View style={styles.radioInner} />}
           </View>
           <Text style={styles.radioLabel}>Female</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       {/* Subscribe Switch */}
@@ -115,7 +115,7 @@ export default function FormScreen() {
       <Text style={styles.label}>Country</Text>
       <View style={styles.countryGroup}>
         {COUNTRIES.map(c => (
-          <TouchableOpacity
+          <Pressable
             key={c}
             style={[
               styles.countryChip,
@@ -134,21 +134,21 @@ export default function FormScreen() {
               ]}>
               {c}
             </Text>
-          </TouchableOpacity>
+</Pressable>
         ))}
       </View>
 
       {/* Submit */}
-      <TouchableOpacity
+      <Pressable
         style={styles.submitButton}
         onPress={handleSubmit}
         accessibilityLabel="submitButton"
         testID="submitButton">
         <Text style={styles.submitButtonText}>Submit</Text>
-      </TouchableOpacity>
+      </Pressable>
 
       {/* Result */}
-      {showResult && (
+      {showResult ? (
         <View style={styles.result} accessibilityLabel="formResult" testID="formResult">
           <Text style={styles.resultTitle}>Submitted Data:</Text>
           <Text style={styles.resultText}>Name: {name || '-'}</Text>
@@ -159,7 +159,7 @@ export default function FormScreen() {
           </Text>
           <Text style={styles.resultText}>Country: {country || '-'}</Text>
         </View>
-      )}
+      ) : null}
     </ScrollView>
   );
 }

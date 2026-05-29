@@ -1,13 +1,27 @@
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {
+  createNativeStackNavigator,
+  NativeStackScreenProps,
+} from '@react-navigation/native-stack';
 import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
 import TodoListScreen from '../screens/TodoListScreen';
 import FormScreen from '../screens/FormScreen';
 import CalculatorScreen from '../screens/CalculatorScreen';
 
-const Stack = createNativeStackNavigator();
+export type RootStackParamList = {
+  Login: undefined;
+  Home: undefined;
+  TodoList: undefined;
+  Form: undefined;
+  Calculator: undefined;
+};
+
+export type ScreenProps<T extends keyof RootStackParamList> =
+  NativeStackScreenProps<RootStackParamList, T>;
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
   return (

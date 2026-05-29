@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
+import React, {useRef, useState, useCallback, memo} from 'react';
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   FlatList,
   StyleSheet,
 } from 'react-native';
@@ -14,32 +14,23 @@ interface Todo {
   completed: boolean;
 }
 
-export default function TodoListScreen() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [input, setInput] = useState('');
-  let nextId = todos.length;
+interface TodoItemProps {
+  item: Todo;
+  index: number;
+  onToggle: (id: number) => void;
+  onDelete: (id: number) => void;
+}
 
-  const addTodo = () => {
-    if (input.trim().length === 0) {
-      return;
-    }
-    nextId += 1;
-    setTodos([...todos, {id: nextId, text: input.trim(), completed: false}]);
-    setInput('');
-  };
-
-  const toggleTodo = (id: number) => {
-    setTodos(todos.map(t => (t.id === id ? {...t, completed: !t.completed} : t)));
-  };
-
-  const deleteTodo = (id: number) => {
-    setTodos(todos.filter(t => t.id !== id));
-  };
-
-  const renderItem = ({item, index}: {item: Todo; index: number}) => (
+const TodoItem = memo(function TodoItem({
+  item,
+  index,
+  onToggle,
+  onDelete,
+}: TodoItemProps) {
+  return (
     <View style={styles.todoItem}>
-      <TouchableOpacity
-        onPress={() => toggleTodo(item.id)}
+      <Pressable
+        onPress={() => onToggle(item.id)}
         accessibilityLabel={`todoCheckbox_${index}`}
         testID={`todoCheckbox_${index}`}
         style={[
@@ -47,7 +38,7 @@ export default function TodoListScreen() {
           item.completed && styles.checkboxChecked,
         ]}>
         {item.completed ? <Text style={styles.checkmark}>✓</Text> : null}
-      </TouchableOpacity>
+      </Pressable>
 
       <Text
         style={[styles.todoText, item.completed && styles.todoTextCompleted]}
@@ -56,14 +47,44 @@ export default function TodoListScreen() {
         {item.text}
       </Text>
 
-      <TouchableOpacity
-        onPress={() => deleteTodo(item.id)}
+      <Pressable
+        onPress={() => onDelete(item.id)}
         accessibilityLabel={`todoDelete_${index}`}
         testID={`todoDelete_${index}`}
         style={styles.deleteButton}>
         <Text style={styles.deleteText}>✕</Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
+  );
+});
+
+export default function TodoListScreen() {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [input, setInput] = useState('');
+  const nextId = useRef(todos.length);
+
+  const addTodo = useCallback(() => {
+    if (input.trim().length === 0) {
+      return;
+    }
+    nextId.current += 1;
+    setTodos(prev => [...prev, {id: nextId.current, text: input.trim(), completed: false}]);
+    setInput('');
+  }, [input]);
+
+  const toggleTodo = useCallback((id: number) => {
+    setTodos(prev => prev.map(t => (t.id === id ? {...t, completed: !t.completed} : t)));
+  }, []);
+
+  const deleteTodo = useCallback((id: number) => {
+    setTodos(prev => prev.filter(t => t.id !== id));
+  }, []);
+
+  const renderItem = useCallback(
+    ({item, index}: {item: Todo; index: number}) => (
+      <TodoItem item={item} index={index} onToggle={toggleTodo} onDelete={deleteTodo} />
+    ),
+    [toggleTodo, deleteTodo],
   );
 
   return (
@@ -80,13 +101,13 @@ export default function TodoListScreen() {
           testID="todoInput"
           onSubmitEditing={addTodo}
         />
-        <TouchableOpacity
+        <Pressable
           style={styles.addButton}
           onPress={addTodo}
           accessibilityLabel="addTodoButton"
           testID="addTodoButton">
           <Text style={styles.addButtonText}>Add</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       <FlatList

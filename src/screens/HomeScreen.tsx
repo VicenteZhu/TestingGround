@@ -1,10 +1,12 @@
-import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import React, {useCallback} from 'react';
+import {View, Text, Pressable, StyleSheet} from 'react-native';
 
-export default function HomeScreen({navigation}: any) {
-  const handleLogout = () => {
+import {ScreenProps} from '../navigation/AppNavigator';
+
+export default function HomeScreen({navigation}: ScreenProps<'Home'>) {
+  const handleLogout = useCallback(() => {
     navigation.replace('Login');
-  };
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
@@ -12,38 +14,38 @@ export default function HomeScreen({navigation}: any) {
       <Text style={styles.subtitle}>Automation Testing Target</Text>
 
       <View style={styles.menuContainer}>
-        <TouchableOpacity
+        <Pressable
           style={styles.menuButton}
           onPress={() => navigation.navigate('TodoList')}
           accessibilityLabel="navTodoList"
           testID="navTodoList">
           <Text style={styles.menuButtonText}>📋 Todo List</Text>
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity
+        <Pressable
           style={styles.menuButton}
           onPress={() => navigation.navigate('Form')}
           accessibilityLabel="navForm"
           testID="navForm">
           <Text style={styles.menuButtonText}>📝 Form</Text>
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity
+        <Pressable
           style={styles.menuButton}
           onPress={() => navigation.navigate('Calculator')}
           accessibilityLabel="navCalculator"
           testID="navCalculator">
           <Text style={styles.menuButtonText}>🔢 Calculator</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
-      <TouchableOpacity
+      <Pressable
         style={styles.logoutButton}
         onPress={handleLogout}
         accessibilityLabel="logoutButton"
         testID="logoutButton">
         <Text style={styles.logoutText}>Logout</Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 }

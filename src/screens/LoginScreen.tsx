@@ -1,26 +1,27 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
-  Alert,
 } from 'react-native';
 
-export default function LoginScreen({navigation}: any) {
+import {ScreenProps} from '../navigation/AppNavigator';
+
+export default function LoginScreen({navigation}: ScreenProps<'Login'>) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleLogin = () => {
+  const handleLogin = useCallback(() => {
     if (username === 'admin' && password === '123456') {
       setError('');
       navigation.replace('Home');
     } else {
       setError('Invalid username or password');
     }
-  };
+  }, [navigation, username, password]);
 
   return (
     <View style={styles.container}>
@@ -52,13 +53,13 @@ export default function LoginScreen({navigation}: any) {
         testID="passwordInput"
       />
 
-      <TouchableOpacity
+      <Pressable
         style={styles.button}
         onPress={handleLogin}
         accessibilityLabel="loginButton"
         testID="loginButton">
         <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
+      </Pressable>
 
       {error ? (
         <Text

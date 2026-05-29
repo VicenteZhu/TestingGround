@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import React, {useState, useCallback} from 'react';
+import {View, Text, Pressable, StyleSheet} from 'react-native';
 
 interface CalcButton {
   label: string;
@@ -7,50 +7,83 @@ interface CalcButton {
   style: 'digit' | 'operator' | 'clear' | 'equals';
 }
 
+const BUTTONS: CalcButton[][] = [
+  [
+    {label: '7', a11yLabel: 'calcDigit_7', style: 'digit'},
+    {label: '8', a11yLabel: 'calcDigit_8', style: 'digit'},
+    {label: '9', a11yLabel: 'calcDigit_9', style: 'digit'},
+    {label: '÷', a11yLabel: 'calcDivide', style: 'operator'},
+  ],
+  [
+    {label: '4', a11yLabel: 'calcDigit_4', style: 'digit'},
+    {label: '5', a11yLabel: 'calcDigit_5', style: 'digit'},
+    {label: '6', a11yLabel: 'calcDigit_6', style: 'digit'},
+    {label: '×', a11yLabel: 'calcMultiply', style: 'operator'},
+  ],
+  [
+    {label: '1', a11yLabel: 'calcDigit_1', style: 'digit'},
+    {label: '2', a11yLabel: 'calcDigit_2', style: 'digit'},
+    {label: '3', a11yLabel: 'calcDigit_3', style: 'digit'},
+    {label: '-', a11yLabel: 'calcSubtract', style: 'operator'},
+  ],
+  [
+    {label: '0', a11yLabel: 'calcDigit_0', style: 'digit'},
+    {label: 'C', a11yLabel: 'calcClear', style: 'clear'},
+    {label: '=', a11yLabel: 'calcEquals', style: 'equals'},
+    {label: '+', a11yLabel: 'calcAdd', style: 'operator'},
+  ],
+];
+
+const calculate = (a: number, b: number, op: string): number => {
+  switch (op) {
+    case '+':
+      return a + b;
+    case '-':
+      return a - b;
+    case '×':
+      return a * b;
+    case '÷':
+      return b !== 0 ? a / b : 0;
+    default:
+      return b;
+  }
+};
+
 export default function CalculatorScreen() {
   const [display, setDisplay] = useState('0');
   const [firstOperand, setFirstOperand] = useState<number | null>(null);
   const [operator, setOperator] = useState<string | null>(null);
   const [waitingForSecond, setWaitingForSecond] = useState(false);
 
-  const handleDigit = (digit: string) => {
-    if (waitingForSecond) {
-      setDisplay(digit);
-      setWaitingForSecond(false);
-    } else {
-      setDisplay(display === '0' ? digit : display + digit);
-    }
-  };
+  const handleDigit = useCallback(
+    (digit: string) => {
+      if (waitingForSecond) {
+        setDisplay(digit);
+        setWaitingForSecond(false);
+      } else {
+        setDisplay(display === '0' ? digit : display + digit);
+      }
+    },
+    [display, waitingForSecond],
+  );
 
-  const handleOperator = (op: string) => {
-    const current = parseFloat(display);
-    if (firstOperand === null) {
-      setFirstOperand(current);
-    } else if (operator) {
-      const result = calculate(firstOperand, current, operator);
-      setDisplay(String(result));
-      setFirstOperand(result);
-    }
-    setOperator(op);
-    setWaitingForSecond(true);
-  };
+  const handleOperator = useCallback(
+    (op: string) => {
+      const current = parseFloat(display);
+      if (firstOperand === null) {
+        setFirstOperand(current);
+      } else if (operator) {
+        const result = calculate(firstOperand, current, operator);
+        setDisplay(String(result));
+        setFirstOperand(result);
+      }
+      setOperator(op);
+      setWaitingForSecond(true);
+    },
+    [display, firstOperand, operator],
+  );
 
-  const calculate = (a: number, b: number, op: string): number => {
-    switch (op) {
-      case '+':
-        return a + b;
-      case '-':
-        return a - b;
-      case '×':
-        return a * b;
-      case '÷':
-        return b !== 0 ? a / b : 0;
-      default:
-        return b;
-    }
-  };
-
-  const handleEquals = () => {
+  const handleEquals = useCallback(() => {
     if (firstOperand === null || operator === null) {
       return;
     }
@@ -60,86 +93,34 @@ export default function CalculatorScreen() {
     setFirstOperand(null);
     setOperator(null);
     setWaitingForSecond(false);
-  };
+  }, [display, firstOperand, operator]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setDisplay('0');
     setFirstOperand(null);
     setOperator(null);
     setWaitingForSecond(false);
-  };
+  }, []);
 
-  const buttons: CalcButton[][] = [
-    [
-      {label: '7', a11yLabel: 'calcDigit_7', style: 'digit'},
-      {label: '8', a11yLabel: 'calcDigit_8', style: 'digit'},
-      {label: '9', a11yLabel: 'calcDigit_9', style: 'digit'},
-      {label: '÷', a11yLabel: 'calcDivide', style: 'operator'},
-    ],
-    [
-      {label: '4', a11yLabel: 'calcDigit_4', style: 'digit'},
-      {label: '5', a11yLabel: 'calcDigit_5', style: 'digit'},
-      {label: '6', a11yLabel: 'calcDigit_6', style: 'digit'},
-      {label: '×', a11yLabel: 'calcMultiply', style: 'operator'},
-    ],
-    [
-      {label: '1', a11yLabel: 'calcDigit_1', style: 'digit'},
-      {label: '2', a11yLabel: 'calcDigit_2', style: 'digit'},
-      {label: '3', a11yLabel: 'calcDigit_3', style: 'digit'},
-      {label: '-', a11yLabel: 'calcSubtract', style: 'operator'},
-    ],
-    [
-      {label: '0', a11yLabel: 'calcDigit_0', style: 'digit'},
-      {label: 'C', a11yLabel: 'calcClear', style: 'clear'},
-      {label: '=', a11yLabel: 'calcEquals', style: 'equals'},
-      {label: '+', a11yLabel: 'calcAdd', style: 'operator'},
-    ],
-  ];
-
-  const getButtonStyle = (type: string) => {
-    switch (type) {
-      case 'digit':
-        return styles.digitButton;
-      case 'operator':
-        return styles.operatorButton;
-      case 'clear':
-        return styles.clearButton;
-      case 'equals':
-        return styles.equalsButton;
-      default:
-        return styles.digitButton;
-    }
-  };
-
-  const getButtonTextStyle = (type: string) => {
-    switch (type) {
-      case 'operator':
-        return styles.operatorText;
-      case 'clear':
-        return styles.clearText;
-      case 'equals':
-        return styles.equalsText;
-      default:
-        return styles.digitText;
-    }
-  };
-
-  const handlePress = (btn: CalcButton) => {
-    switch (btn.style) {
-      case 'digit':
-        handleDigit(btn.label);
-        break;
-      case 'operator':
-        handleOperator(btn.label);
-        break;
-      case 'equals':
-        handleEquals();
-        break;
-      case 'clear':
-        handleClear();
-        break;
-    }
-  };
+  const handlePress = useCallback(
+    (btn: CalcButton) => {
+      switch (btn.style) {
+        case 'digit':
+          handleDigit(btn.label);
+          break;
+        case 'operator':
+          handleOperator(btn.label);
+          break;
+        case 'equals':
+          handleEquals();
+          break;
+        case 'clear':
+          handleClear();
+          break;
+      }
+    },
+    [handleDigit, handleOperator, handleEquals, handleClear],
+  );
 
   return (
     <View style={styles.container}>
@@ -155,19 +136,32 @@ export default function CalculatorScreen() {
       </View>
 
       <View style={styles.keypad}>
-        {buttons.map((row, ri) => (
+        {BUTTONS.map((row, ri) => (
           <View key={ri} style={styles.row}>
             {row.map(btn => (
-              <TouchableOpacity
+              <Pressable
                 key={btn.a11yLabel}
-                style={[styles.button, getButtonStyle(btn.style)]}
+                style={[
+                  styles.button,
+                  btn.style === 'digit' ? styles.digitButton
+                  : btn.style === 'operator' ? styles.operatorButton
+                  : btn.style === 'clear' ? styles.clearButton
+                  : styles.equalsButton,
+                ]}
                 onPress={() => handlePress(btn)}
                 accessibilityLabel={btn.a11yLabel}
                 testID={btn.a11yLabel}>
-                <Text style={[styles.buttonText, getButtonTextStyle(btn.style)]}>
+                <Text
+                  style={[
+                    styles.buttonText,
+                    btn.style === 'operator' ? styles.operatorText
+                    : btn.style === 'clear' ? styles.clearText
+                    : btn.style === 'equals' ? styles.equalsText
+                    : styles.digitText,
+                  ]}>
                   {btn.label}
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             ))}
           </View>
         ))}
