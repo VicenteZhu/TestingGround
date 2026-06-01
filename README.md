@@ -1,6 +1,6 @@
 # TestingGround
 
-A cross-platform (Android / iOS) React Native app built as an **Appium automation testing target**, providing typical UI scenarios: login, todo list, form, and calculator.
+A cross-platform (Android / iOS / Web) app built as an **Appium / Selenium automation testing target**, providing typical UI scenarios: login, todo list, form, and calculator. Mobile app built with React Native; web app built with Vite + React.
 
 ---
 
@@ -130,27 +130,42 @@ emulator -list-avds # Android emulator
 
 ## Quick Start
 
+### Mobile (React Native)
+
 ```bash
-# Navigate to the project directory
 cd TestingGround
-
-# Install dependencies
 npm install
-
-# Install iOS CocoaPods
 cd ios && pod install && cd ..
 
 # Start Metro
 npm start
 
-# In a new terminal, run Android
-npm run android
-
-# In a new terminal, run iOS
-npm run ios
+# In a new terminal
+npm run android   # Android
+npm run ios       # iOS
 ```
 
 The first Android build takes about 5-10 minutes; subsequent incremental builds take about 1 minute.
+
+### Web (React + Vite)
+
+```bash
+cd TestingGround/web
+npm install
+
+# Dev server (localhost:3000)
+npm run dev
+
+# Production build (outputs to web/dist/)
+npm run build
+```
+
+Or from the project root:
+
+```bash
+npm run web         # dev server
+npm run web-build   # production build
+```
 
 ---
 
@@ -169,7 +184,21 @@ TestingGround/
 │       └── AppNavigator.tsx       # 5-screen navigation stack
 ├── android/                       # Android native project
 ├── ios/                           # iOS native project (CocoaPods)
-├── App.tsx                        # Entry point
+├── web/                           # Web app (Vite + React)
+│   ├── src/
+│   │   ├── screens/
+│   │   │   ├── LoginScreen.tsx
+│   │   │   ├── HomeScreen.tsx
+│   │   │   ├── TodoListScreen.tsx
+│   │   │   ├── FormScreen.tsx
+│   │   │   └── CalculatorScreen.tsx
+│   │   ├── App.tsx                # React Router config
+│   │   ├── main.tsx               # Web entry point
+│   │   └── index.css              # Global styles
+│   ├── index.html
+│   ├── vite.config.ts
+│   └── package.json
+├── App.tsx                        # RN entry point
 └── package.json
 ```
 
@@ -186,6 +215,28 @@ TestingGround/
 | CalculatorScreen | Digit input, 4 operations, equals, clear | 17 |
 
 Built-in credentials: `admin` / `123456`
+
+---
+
+## Selenium / Web Element Locators
+
+The web version uses standard HTML `id` attributes matching the same element IDs as the mobile version. Selenium locates elements via `By.ID`.
+
+All element IDs are identical across React Native (Appium) and Web (Selenium).
+
+### Selenium Example (Python)
+
+```python
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+driver = webdriver.Chrome()
+driver.get("http://localhost:3000")
+
+driver.find_element(By.ID, "usernameInput").send_keys("admin")
+driver.find_element(By.ID, "passwordInput").send_keys("123456")
+driver.find_element(By.ID, "loginButton").click()
+```
 
 ---
 

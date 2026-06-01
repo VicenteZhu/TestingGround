@@ -1,6 +1,6 @@
 # TestingGround
 
-用于 **Appium 自动化测试**的 React Native 跨平台（Android / iOS）被测应用，提供登录、Todo 列表、表单、计算器等典型 UI 场景。
+用于 **Appium / Selenium 自动化测试**的跨平台（Android / iOS / Web）被测应用，提供登录、Todo 列表、表单、计算器等典型 UI 场景。移动端基于 React Native，Web 端基于 Vite + React。
 
 ---
 
@@ -130,27 +130,42 @@ emulator -list-avds # Android 模拟器
 
 ## 快速开始
 
+### 移动端 (React Native)
+
 ```bash
-# 进入项目目录
 cd TestingGround
-
-# 安装依赖
 npm install
-
-# 安装 iOS CocoaPods
 cd ios && pod install && cd ..
 
 # 启动 Metro
 npm start
 
-# 新终端运行 Android
-npm run android
-
-# 新终端运行 iOS
-npm run ios
+# 新终端运行
+npm run android   # Android
+npm run ios       # iOS
 ```
 
 首次 Android 构建约 5-10 分钟，后续增量构建约 1 分钟。
+
+### Web 端 (React + Vite)
+
+```bash
+cd TestingGround/web
+npm install
+
+# 开发服务器 (localhost:3000)
+npm run dev
+
+# 生产构建 (输出到 web/dist/)
+npm run build
+```
+
+或从项目根目录运行：
+
+```bash
+npm run web         # 开发服务器
+npm run web-build   # 生产构建
+```
 
 ---
 
@@ -169,7 +184,21 @@ TestingGround/
 │       └── AppNavigator.tsx       # 5 页面导航栈
 ├── android/                       # Android 原生工程
 ├── ios/                           # iOS 原生工程 (CocoaPods)
-├── App.tsx                        # 入口
+├── web/                           # Web 端 (Vite + React)
+│   ├── src/
+│   │   ├── screens/
+│   │   │   ├── LoginScreen.tsx
+│   │   │   ├── HomeScreen.tsx
+│   │   │   ├── TodoListScreen.tsx
+│   │   │   ├── FormScreen.tsx
+│   │   │   └── CalculatorScreen.tsx
+│   │   ├── App.tsx                # React Router 配置
+│   │   ├── main.tsx               # Web 入口
+│   │   └── index.css              # 全局样式
+│   ├── index.html
+│   ├── vite.config.ts
+│   └── package.json
+├── App.tsx                        # RN 入口
 └── package.json
 ```
 
@@ -186,6 +215,26 @@ TestingGround/
 | CalculatorScreen | 数字输入、四则运算、等号、清除 | 17 |
 
 内建账号: `admin` / `123456`
+
+---
+
+## Selenium / Web 元素定位参考
+
+Web 版使用标准 HTML `id` 属性，与移动版相同的元素 ID。Selenium 通过 `By.ID` 定位元素。所有元素 ID 在 React Native (Appium) 和 Web (Selenium) 中完全一致。
+
+### Selenium 示例 (Python)
+
+```python
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+driver = webdriver.Chrome()
+driver.get("http://localhost:3000")
+
+driver.find_element(By.ID, "usernameInput").send_keys("admin")
+driver.find_element(By.ID, "passwordInput").send_keys("123456")
+driver.find_element(By.ID, "loginButton").click()
+```
 
 ---
 
