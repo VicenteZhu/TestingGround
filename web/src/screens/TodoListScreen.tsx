@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 interface Todo {
   id: number
@@ -12,6 +13,7 @@ export default function TodoListScreen({ onBack }: Props) {
   const [todos, setTodos] = useState<Todo[]>([])
   const [input, setInput] = useState('')
   const nextId = useRef(0)
+  const navigate = useNavigate()
 
   const addTodo = useCallback(() => {
     if (input.trim().length === 0) return
@@ -35,7 +37,7 @@ export default function TodoListScreen({ onBack }: Props) {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#fff' }}>
       <div className="navbar">
-        <button className="navbar-back" onClick={() => navigateBack('/home')} aria-label="navBack" id="navBack">← Home</button>
+        <button className="navbar-back" onClick={() => navigate('/home')} aria-label="navBack" id="navBack">← Home</button>
         <span className="navbar-title">Todo List</span>
       </div>
 
@@ -80,8 +82,4 @@ export default function TodoListScreen({ onBack }: Props) {
       </div>
     </div>
   )
-}
-
-function navigateBack(path: string) {
-  window.location.href = path
 }

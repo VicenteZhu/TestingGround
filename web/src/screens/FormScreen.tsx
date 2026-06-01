@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const COUNTRIES = ['China', 'United States', 'Japan', 'Germany', 'Other']
 
@@ -11,6 +12,7 @@ export default function FormScreen({ onBack }: Props) {
   const [subscribed, setSubscribed] = useState(false)
   const [country, setCountry] = useState('')
   const [showResult, setShowResult] = useState(false)
+  const navigate = useNavigate()
 
   const handleSubmit = () => {
     setShowResult(true)
@@ -19,7 +21,7 @@ export default function FormScreen({ onBack }: Props) {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f5f5f5' }}>
       <div className="navbar">
-        <button className="navbar-back" onClick={() => window.location.href = '/home'} aria-label="navBack" id="navBack">← Home</button>
+        <button className="navbar-back" onClick={() => navigate('/home')} aria-label="navBack" id="navBack">← Home</button>
         <span className="navbar-title">Registration Form</span>
       </div>
 

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 interface CalcButton {
   label: string
@@ -30,6 +31,7 @@ export default function CalculatorScreen({ onBack }: Props) {
   const [firstOperand, setFirstOperand] = useState<number | null>(null)
   const [operator, setOperator] = useState<string | null>(null)
   const [waitingForSecond, setWaitingForSecond] = useState(false)
+  const navigate = useNavigate()
 
   const handleDigit = useCallback((digit: string) => {
     if (waitingForSecond) {
@@ -89,7 +91,7 @@ export default function CalculatorScreen({ onBack }: Props) {
   return (
     <div className="calc">
       <div className="navbar" style={{ background: '#2C2C2E', borderColor: '#3A3A3C' }}>
-        <button className="navbar-back" onClick={() => window.location.href = '/home'} aria-label="navBack" id="navBack" style={{ color: '#FF9500' }}>← Home</button>
+        <button className="navbar-back" onClick={() => navigate('/home')} aria-label="navBack" id="navBack" style={{ color: '#FF9500' }}>← Home</button>
         <span className="navbar-title" style={{ color: '#fff' }}>Calculator</span>
       </div>
       <div className="calc-display">
