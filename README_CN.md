@@ -156,7 +156,7 @@ npm install
 # 开发服务器 (localhost:3000)
 npm run dev
 
-# 生产构建 (输出到 dist/)
+# 生产构建 (输出到 web/dist/)
 npm run build
 ```
 

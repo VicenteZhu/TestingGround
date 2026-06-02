@@ -156,7 +156,7 @@ npm install
 # Dev server (localhost:3000)
 npm run dev
 
-# Production build (outputs to dist/)
+# Production build (outputs to web/dist/)
 npm run build
 ```
 
