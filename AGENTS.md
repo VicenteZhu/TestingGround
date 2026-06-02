@@ -27,6 +27,12 @@ cd ios && pod install
 cd ios && xcodebuild -workspace TestingGround.xcworkspace -scheme TestingGround \
   -configuration Debug -sdk iphonesimulator \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
+
+# iOS simulator build (output to ios/dist/)
+cd ios && xcodebuild -workspace TestingGround.xcworkspace -scheme TestingGround \
+  -configuration Debug -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -derivedDataPath ./dist build
 ```
 
 ## npm cache quirk

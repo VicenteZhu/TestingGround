@@ -5,6 +5,7 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
+    "ios-build": "cd ios && xcodebuild -workspace TestingGround.xcworkspace -scheme TestingGround -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -derivedDataPath ./dist build",
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
