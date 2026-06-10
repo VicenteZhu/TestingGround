@@ -17,51 +17,37 @@ export default function HomeScreen({ onLogout }: Props) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fff', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ padding: '32px 24px 8px' }}>
-        <h1 style={{ fontSize: 28, fontWeight: 700, color: '#202124', margin: 0 }}>Test App Dashboard</h1>
-        <p style={{ fontSize: 14, color: '#5f6368', marginTop: 4 }}>Automation Testing Target</p>
+    <div className="home-screen">
+      <div className="home-header">
+        <h1 className="home-title">Test App Dashboard</h1>
+        <p className="home-subtitle">Automation Testing Target</p>
       </div>
 
-      <div style={{ flex: 1, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div className="home-body">
         {CARDS.map(card => (
           <div
             key={card.id}
+            className="home-card"
             onClick={() => navigate(card.to)}
             aria-label={card.id}
             id={card.id}
-            style={{
-              display: 'flex', alignItems: 'center', padding: '20px 20px', borderRadius: 16,
-              background: '#fff', border: '1px solid #e0e0e0', cursor: 'pointer',
-              transition: 'box-shadow 0.2s, transform 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.08)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-            onMouseLeave={e => { e.currentTarget.style.boxShadow = ''; e.currentTarget.style.transform = '' }}
           >
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, marginRight: 16, flexShrink: 0 }}>
-              {card.icon}
+            <div className="home-card-icon" style={{ background: card.bg }}>{card.icon}</div>
+            <div className="home-card-body">
+              <div className="home-card-title">{card.label}</div>
+              <div className="home-card-desc">{card.desc}</div>
             </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 16, fontWeight: 600, color: '#202124' }}>{card.label}</div>
-              <div style={{ fontSize: 13, color: '#5f6368', marginTop: 2 }}>{card.desc}</div>
-            </div>
-            <span style={{ fontSize: 18, color: '#ccc' }}>→</span>
+            <span className="home-card-arrow">→</span>
           </div>
         ))}
 
         <div style={{ flex: 1 }} />
 
         <button
+          className="btn btn-danger"
           onClick={handleLogout}
           aria-label="logoutButton"
           id="logoutButton"
-          style={{
-            height: 50, borderRadius: 12, border: 'none', fontSize: 15, fontWeight: 600,
-            cursor: 'pointer', background: '#C5221F', color: '#fff',
-            transition: 'opacity 0.2s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.opacity = '0.9' }}
-          onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
         >
           Logout
         </button>

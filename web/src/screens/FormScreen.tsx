@@ -28,10 +28,10 @@ export default function FormScreen({ onBack }: Props) {
       <div className="page-body">
         <div style={{ maxWidth: 400 }}>
           <p className="label">Name</p>
-          <input className="input" style={{ maxWidth: '100%' }} placeholder="Enter your name" value={name} onChange={e => { setName(e.target.value); setShowResult(false) }} aria-label="nameInput" id="nameInput" />
+          <input className="input" style={{ maxWidth: '100%' }} placeholder="Enter your name" value={name} onChange={e => { setName((e.target as HTMLInputElement).value); setShowResult(false) }} aria-label="nameInput" id="nameInput" />
 
           <p className="label">Email</p>
-          <input className="input" style={{ maxWidth: '100%' }} placeholder="Enter your email" value={email} onChange={e => { setEmail(e.target.value); setShowResult(false) }} aria-label="emailInput" id="emailInput" />
+          <input className="input" style={{ maxWidth: '100%' }} placeholder="Enter your email" value={email} onChange={e => { setEmail((e.target as HTMLInputElement).value); setShowResult(false) }} aria-label="emailInput" id="emailInput" />
 
           <p className="label">Gender</p>
           <div className="radio-group">
@@ -48,7 +48,7 @@ export default function FormScreen({ onBack }: Props) {
           <div className="switch-row" style={{ marginTop: 16 }}>
             <p className="label" style={{ margin: 0 }}>Subscribe to newsletter</p>
             <label style={{ position: 'relative', display: 'inline-block', width: 48, height: 28, cursor: 'pointer' }}>
-              <input type="checkbox" checked={subscribed} onChange={e => { setSubscribed(e.target.checked); setShowResult(false) }} style={{ opacity: 0, width: 0, height: 0 }} aria-label="subscribeSwitch" id="subscribeSwitch" />
+              <input type="checkbox" checked={subscribed} onChange={e => { setSubscribed((e.target as HTMLInputElement).checked); setShowResult(false) }} style={{ opacity: 0, width: 0, height: 0 }} aria-label="subscribeSwitch" id="subscribeSwitch" />
               <span style={{ position: 'absolute', inset: 0, background: subscribed ? '#34C759' : '#ccc', borderRadius: 14, transition: '0.3s' }} />
               <span style={{ position: 'absolute', width: 22, height: 22, borderRadius: '50%', background: '#fff', top: 3, left: subscribed ? 23 : 3, transition: '0.3s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
             </label>

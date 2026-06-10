@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 interface Todo {
@@ -8,6 +8,37 @@ interface Todo {
 }
 
 interface Props { onBack: () => void }
+
+interface TodoItemProps {
+  item: Todo
+  index: number
+  onToggle: (id: number) => void
+  onDelete: (id: number) => void
+}
+
+const TodoItemInner = ({ item, index, onToggle, onDelete }: TodoItemProps) => {
+  return (
+    <div className="todo-item">
+      <div
+        className={`checkbox${item.completed ? ' checked' : ''}`}
+        onClick={() => onToggle(item.id)}
+        aria-label={`todoCheckbox_${index}`}
+        id={`todoCheckbox_${index}`}
+      >
+        {item.completed ? <span className="checkmark">✓</span> : null}
+      </div>
+      <span className={`todo-text${item.completed ? ' done' : ''}`} aria-label={`todoText_${index}`} id={`todoText_${index}`}>
+        {item.text}
+      </span>
+      <button className="todo-delete" onClick={() => onDelete(item.id)} aria-label={`todoDelete_${index}`} id={`todoDelete_${index}`}>
+        ✕
+      </button>
+    </div>
+  )
+}
+
+const TodoItem = memo(TodoItemInner)
+TodoItem.displayName = 'TodoItem'
 
 export default function TodoListScreen({ onBack }: Props) {
   const [todos, setTodos] = useState<Todo[]>([])
@@ -30,25 +61,21 @@ export default function TodoListScreen({ onBack }: Props) {
     setTodos(prev => prev.filter(t => t.id !== id))
   }, [])
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') addTodo()
-  }
-
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#fff' }}>
+    <div className="todo-screen">
       <div className="navbar">
         <button className="navbar-back" onClick={() => navigate('/home')} aria-label="navBack" id="navBack">← Home</button>
         <span className="navbar-title">Todo List</span>
       </div>
 
-      <div style={{ padding: 20, flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div className="todo-body">
         <div className="todo-input-row">
           <input
             className="input"
             placeholder="Enter a new task..."
             value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
+            onChange={e => setInput((e.target as HTMLInputElement).value)}
+            onKeyDown={e => { if (e.key === 'Enter') addTodo() }}
             aria-label="todoInput"
             id="todoInput"
           />
@@ -60,22 +87,7 @@ export default function TodoListScreen({ onBack }: Props) {
             <p className="empty-text">No tasks yet</p>
           ) : (
             todos.map((item, index) => (
-              <div key={item.id} className="todo-item">
-                <div
-                  className={`checkbox ${item.completed ? 'checked' : ''}`}
-                  onClick={() => toggleTodo(item.id)}
-                  aria-label={`todoCheckbox_${index}`}
-                  id={`todoCheckbox_${index}`}
-                >
-                  {item.completed ? <span className="checkmark">✓</span> : null}
-                </div>
-                <span className={`todo-text ${item.completed ? 'done' : ''}`} aria-label={`todoText_${index}`} id={`todoText_${index}`}>
-                  {item.text}
-                </span>
-                <button className="todo-delete" onClick={() => deleteTodo(item.id)} aria-label={`todoDelete_${index}`} id={`todoDelete_${index}`}>
-                  ✕
-                </button>
-              </div>
+              <TodoItem key={item.id} item={item} index={index} onToggle={toggleTodo} onDelete={deleteTodo} />
             ))
           )}
         </div>

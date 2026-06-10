@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useRef} from 'react';
 import {View, Text, Pressable, StyleSheet} from 'react-native';
 
 interface CalcButton {
@@ -54,46 +54,41 @@ export default function CalculatorScreen() {
   const [firstOperand, setFirstOperand] = useState<number | null>(null);
   const [operator, setOperator] = useState<string | null>(null);
   const [waitingForSecond, setWaitingForSecond] = useState(false);
+  const displayRef = useRef(display)
+  displayRef.current = display
 
-  const handleDigit = useCallback(
-    (digit: string) => {
-      if (waitingForSecond) {
-        setDisplay(digit);
-        setWaitingForSecond(false);
-      } else {
-        setDisplay(display === '0' ? digit : display + digit);
-      }
-    },
-    [display, waitingForSecond],
-  );
+  const handleDigit = useCallback((digit: string) => {
+    if (waitingForSecond) {
+      setDisplay(digit)
+      setWaitingForSecond(false)
+    } else {
+      setDisplay(prev => prev === '0' ? digit : prev + digit)
+    }
+  }, [waitingForSecond])
 
-  const handleOperator = useCallback(
-    (op: string) => {
-      const current = parseFloat(display);
-      if (firstOperand === null) {
-        setFirstOperand(current);
-      } else if (operator) {
-        const result = calculate(firstOperand, current, operator);
-        setDisplay(String(result));
-        setFirstOperand(result);
-      }
-      setOperator(op);
-      setWaitingForSecond(true);
-    },
-    [display, firstOperand, operator],
-  );
+  const handleOperator = useCallback((op: string) => {
+    const current = parseFloat(displayRef.current)
+    if (firstOperand === null) {
+      setFirstOperand(current)
+    } else if (operator) {
+      setDisplay(prev => String(calculate(firstOperand, parseFloat(prev), operator)))
+    }
+    setOperator(op)
+    setWaitingForSecond(true)
+  }, [firstOperand, operator])
 
   const handleEquals = useCallback(() => {
     if (firstOperand === null || operator === null) {
       return;
     }
-    const current = parseFloat(display);
-    const result = calculate(firstOperand, current, operator);
-    setDisplay(String(result));
-    setFirstOperand(null);
-    setOperator(null);
-    setWaitingForSecond(false);
-  }, [display, firstOperand, operator]);
+    setDisplay(prev => {
+      const current = parseFloat(prev)
+      return String(calculate(firstOperand, current, operator))
+    })
+    setFirstOperand(null)
+    setOperator(null)
+    setWaitingForSecond(false)
+  }, [firstOperand, operator])
 
   const handleClear = useCallback(() => {
     setDisplay('0');
