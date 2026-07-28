@@ -40,15 +40,22 @@ build_ios() {
     --assets-dest ios/ 2>&1 | tail -3
   log_ok "iOS bundle generated"
 
-  log_step "Building RN iOS app (standalone)"
+  log_step "Building RN iOS app"
   cd "$RN_DIR/ios"
   xcodebuild -workspace TestingGround.xcworkspace -scheme TestingGround \
     -configuration Debug -sdk iphonesimulator \
     -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
     -derivedDataPath ./dist-build build 2>&1 | grep -E "BUILD" | tail -1
 
+  APP_DIR="dist-build/Build/Products/Debug-iphonesimulator/TestingGround.app"
+
+  # Inject offline bundle into .app (Debug build phase does not embed it)
+  log_step "Injecting offline bundle into .app"
+  cp "$RN_DIR/ios/main.jsbundle" "$APP_DIR/main.jsbundle"
+  log_ok "Bundle embedded ($(du -h "$APP_DIR/main.jsbundle" | cut -f1))"
+
   mkdir -p "$DIST_DIR/ios"
-  cp -r dist-build/Build/Products/Debug-iphonesimulator/TestingGround.app "$DIST_DIR/ios/"
+  cp -r "$APP_DIR" "$DIST_DIR/ios/"
   rm -rf dist-build
   rm -f "$RN_DIR/ios/main.jsbundle"
   log_ok "iOS app → dist/ios/TestingGround.app"

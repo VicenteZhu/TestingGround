@@ -221,6 +221,9 @@ npx react-native bundle \
 
 #### iOS Standalone
 
+> **Important**: In Debug mode, Xcode's "Bundle React Native code and images" build phase does NOT embed
+> the JS bundle into the `.app`. You must manually inject the pre-built `main.jsbundle` after building.
+
 ```bash
 cd apps/react-native/ios
 
@@ -229,13 +232,18 @@ xcodebuild -workspace TestingGround.xcworkspace -scheme TestingGround \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   -derivedDataPath ./dist-build build
 
+APP_DIR="dist-build/Build/Products/Debug-iphonesimulator/TestingGround.app"
+
+# Inject offline bundle into .app (critical step)
+cp ../main.jsbundle "$APP_DIR/main.jsbundle"
+
 # Copy .app to dist/
 mkdir -p ../../../../dist/ios
-cp -r dist-build/Build/Products/Debug-iphonesimulator/TestingGround.app ../../../../dist/ios/
+cp -r "$APP_DIR" ../../../../dist/ios/
 rm -rf dist-build
 ```
 
-The pre-built `main.jsbundle` is embedded in the `.app` resource bundle. When launched without Metro, the app falls back to this embedded bundle.
+The injected `main.jsbundle` is used when the app cannot connect to Metro, enabling fully offline operation.
 
 #### Android Standalone
 
