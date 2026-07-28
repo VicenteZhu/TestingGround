@@ -32,3 +32,5 @@ target 'TestingGround' do
     )
   end
 end
+
+pod 'FLEX', :configurations => ['Debug']

@@ -1,0 +1,37 @@
+name: TestingGround
+options:
+  bundleIdPrefix: com.testing.ground
+  deploymentTarget:
+    iOS: "14.0"
+  xcodeVersion: "14.0"
+  createIntermediateGroups: true
+
+targets:
+  TestingGround:
+    type: application
+    platform: iOS
+    sources:
+      - path: UIKit/App
+      - path: UIKit/Views
+    settings:
+      base:
+        INFOPLIST_FILE: UIKit/App/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.testing.ground.TestingGround
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+    info:
+      path: UIKit/App/Info.plist
+
+  TestingGroundUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: UIKit/UITests
+    dependencies:
+      - target: TestingGround
+    settings:
+      base:
+        INFOPLIST_FILE: UIKit/UITests/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.testing.ground.TestingGroundUITests
+        SWIFT_VERSION: "5.0"
+        TEST_TARGET_NAME: TestingGround
