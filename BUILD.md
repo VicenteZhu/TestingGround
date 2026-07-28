@@ -1,6 +1,6 @@
 # Build Guide / 构建教程
 
-Complete guide for setting up the development environment and building both sub-projects.
+Complete guide for setting up the development environment and building all sub-projects. Supports both **development mode** (with Metro hot-reload) and **standalone mode** (offline, no Metro required).
 
 [Back to README](README.md) | [中文文档](README_CN.md)
 
@@ -10,20 +10,18 @@ Complete guide for setting up the development environment and building both sub-
 
 - [Prerequisites](#prerequisites)
 - [Environment Setup](#environment-setup)
-  - [1. Node.js & npm](#1-nodejs--npm)
-  - [2. JDK 17](#2-jdk-17)
-  - [3. Watchman](#3-watchman)
-  - [4. Ruby & CocoaPods](#4-ruby--cocoapods)
-  - [5. XcodeGen](#5-xcodegen)
-  - [6. Android Studio & SDK](#6-android-studio--sdk)
-  - [7. Xcode](#7-xcode)
-  - [8. Verify Installation](#8-verify-installation)
-- [Building the React Native App](#building-the-react-native-app)
-  - [iOS](#ios)
-  - [Android](#android)
-  - [Web](#web)
+- [Build Modes Overview](#build-modes-overview)
+- [Development Build (with Metro)](#development-build-with-metro)
+  - [iOS](#ios-dev)
+  - [Android](#android-dev)
+  - [Web](#web-dev)
+- [Standalone Build (without Metro)](#standalone-build-without-metro)
+  - [Generate Offline JS Bundle](#step-1-generate-offline-js-bundle)
+  - [iOS Standalone](#ios-standalone)
+  - [Android Standalone](#android-standalone)
+  - [Web Standalone](#web-standalone)
+- [Build All (one-command)](#build-all-one-command)
 - [Building the iOS Native App](#building-the-ios-native-app)
-- [Shared Scripts](#shared-scripts)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -47,15 +45,11 @@ Complete guide for setting up the development environment and building both sub-
 
 ### 1. Node.js & npm
 
-Install via nvm (recommended):
-
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 source ~/.zshrc
 nvm install 22
 nvm use 22
-node --version   # v22.x
-npm --version    # 10.x
 ```
 
 **npm cache fix**: If your system npm cache has root-owned files:
@@ -70,68 +64,42 @@ npm config set cache $HOME/workspace/.npm-cache
 brew install openjdk@17
 echo 'export JAVA_HOME="/usr/local/opt/openjdk@17"' >> ~/.zshrc
 source ~/.zshrc
-java -version    # openjdk 17.x
 ```
 
 ### 3. Watchman
 
 ```bash
 brew install watchman
-watchman --version
 ```
 
 ### 4. Ruby & CocoaPods
-
-macOS system Ruby may be too old. Install via Homebrew:
 
 ```bash
 brew install ruby
 echo 'export PATH="/usr/local/opt/ruby/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
-ruby --version   # 3.x
-```
-
-Install CocoaPods:
-
-```bash
 sudo gem install cocoapods
-pod --version
-```
-
-If `pod` is not found, add the Ruby gems bin to PATH:
-
-```bash
-echo 'export PATH="/usr/local/lib/ruby/gems/$(ruby -e "puts Gem.ruby_version")/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
 ```
 
 ### 5. XcodeGen
 
-Required for the iOS native project (`apps/ios-native/`):
-
 ```bash
 brew install xcodegen
-xcodegen --version
 ```
 
 ### 6. Android Studio & SDK
 
 1. Download from [developer.android.com/studio](https://developer.android.com/studio)
-2. After first launch, open **SDK Manager** and install:
-   - **SDK Platforms**: Android 15.0 (API 35) or higher
-   - **SDK Tools**: Android SDK Build-Tools, Android Emulator, Android SDK Platform-Tools
-   - **System Image**: Intel x86_64 System Image (API 35)
-
-3. Configure environment variables:
+2. Install via SDK Manager: Android 15.0 (API 35), Build-Tools, Emulator, Platform-Tools
+3. Configure:
 
 ```bash
 echo 'export ANDROID_HOME="$HOME/Library/Android/sdk"' >> ~/.zshrc
-echo 'export ANDROID_SDK_ROOT="$ANDROID_HOME"' >> ~/.zshrc
 echo 'export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-4. Create an Android emulator (optional):
+4. Create emulator (optional):
 
 ```bash
 sdkmanager "system-images;android-35;google_apis;x86_64"
@@ -140,34 +108,24 @@ avdmanager create avd -n Pixel_10_Pro_XL -k "system-images;android-35;google_api
 
 ### 7. Xcode
 
-Install from Mac App Store. After installation, launch once to accept the license, then:
-
 ```bash
 sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
-xcodebuild -version    # Xcode 16.x
 ```
 
-### 8. Verify Installation
-
-Run all checks at once:
+### 8. Verify
 
 ```bash
-echo "=== Environment Check ==="
-node --version          # v22.x
-npm --version           # 10.x
-java -version           # openjdk 17.x
-watchman --version      # v20xx
-pod --version           # 1.x
-xcodegen --version      # 2.x
-xcodebuild -version     # Xcode 16.x
-adb --version           # Android Debug Bridge
-emulator -list-avds     # List available AVDs
-xcrun simctl list devices available | grep iPhone | head -5
+node --version && npm --version && java -version && pod --version && xcodegen --version && adb --version
 ```
 
 ---
 
-## Building the React Native App
+## Build Modes Overview
+
+| Mode | Metro Required | Hot Reload | Use Case |
+|------|---------------|------------|----------|
+| **Development** | Yes | Yes | Active development, debugging |
+| **Standalone** | No | No | CI/CD, testing, distribution |
 
 All commands below run from `apps/react-native/`:
 
@@ -175,27 +133,53 @@ All commands below run from `apps/react-native/`:
 cd apps/react-native
 ```
 
-### First-time setup
+### First-time setup (both modes)
 
 ```bash
 npm install
 cd ios && pod install && cd ..
 ```
 
-### iOS
+---
+
+## Development Build (with Metro)
+
+Apps connect to Metro dev server for live JS bundle serving and hot-reload.
+
+### iOS {#ios-dev}
 
 ```bash
-# Start Metro dev server (keep running)
+# Terminal 1 — Start Metro
 npm start
 
-# In a new terminal — build and run on simulator
+# Terminal 2 — Build & launch
 npm run ios
+```
 
-# Or build with explicit xcodebuild (output to ios/dist/)
+Or with explicit xcodebuild:
+
+```bash
 cd ios && xcodebuild -workspace TestingGround.xcworkspace -scheme TestingGround \
   -configuration Debug -sdk iphonesimulator \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   -derivedDataPath ./dist build
+```
+
+### Android {#android-dev}
+
+```bash
+# Terminal 1 — Start Metro
+npm start
+
+# Terminal 2 — Start emulator & build
+$ANDROID_HOME/emulator/emulator -avd Pixel_10_Pro_XL &
+npm run android
+```
+
+### Web {#web-dev}
+
+```bash
+npm run web    # Dev server at localhost:3000
 ```
 
 **TypeScript check** (no build required):
@@ -204,29 +188,134 @@ cd ios && xcodebuild -workspace TestingGround.xcworkspace -scheme TestingGround 
 npx tsc --noEmit
 ```
 
-### Android
+---
+
+## Standalone Build (without Metro)
+
+Apps are pre-bundled with the JS code embedded, so they run independently without Metro.
+
+### Step 1: Generate Offline JS Bundle
+
+This creates a production-ready JS bundle for each platform:
 
 ```bash
-# Start the emulator first
-$ANDROID_HOME/emulator/emulator -avd Pixel_10_Pro_XL &
+cd apps/react-native
 
-# Wait for emulator to boot, then build and install
-npm run android
+# iOS bundle
+npx react-native bundle \
+  --platform ios --dev false \
+  --entry-file index.js \
+  --bundle-output ios/main.jsbundle \
+  --assets-dest ios/
 
-# Or using react-native CLI
-npx react-native run-android --mode=debug
+# Android bundle
+mkdir -p android/app/src/main/assets
+npx react-native bundle \
+  --platform android --dev false \
+  --entry-file index.js \
+  --bundle-output android/app/src/main/assets/index.android.bundle \
+  --assets-dest android/app/src/main/res/
 ```
 
-> First Android build takes ~5-10 minutes. Subsequent incremental builds take ~1 minute.
+### Step 2: Build Each Platform
 
-### Web
+#### iOS Standalone
 
 ```bash
-# Dev server (localhost:3000)
-npm run web
+cd apps/react-native/ios
 
-# Production build (outputs to web/dist/)
-npm run web-build
+xcodebuild -workspace TestingGround.xcworkspace -scheme TestingGround \
+  -configuration Debug -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -derivedDataPath ./dist-build build
+
+# Copy .app to dist/
+mkdir -p ../../../../dist/ios
+cp -r dist-build/Build/Products/Debug-iphonesimulator/TestingGround.app ../../../../dist/ios/
+rm -rf dist-build
+```
+
+The pre-built `main.jsbundle` is embedded in the `.app` resource bundle. When launched without Metro, the app falls back to this embedded bundle.
+
+#### Android Standalone
+
+```bash
+cd apps/react-native/android
+
+ANDROID_HOME=$HOME/Library/Android/sdk ./gradlew assembleRelease
+
+# Copy APK to dist/
+mkdir -p ../../../../dist/android
+cp app/build/outputs/apk/release/app-release.apk ../../../../dist/android/
+```
+
+The Release APK automatically includes the embedded `index.android.bundle` from `assets/`.
+
+#### Web Standalone
+
+```bash
+cd apps/react-native/web
+npm run build
+
+# Copy to dist/
+mkdir -p ../../../../dist/web
+cp -r dist/* ../../../../dist/web/
+```
+
+Serve with any static HTTP server:
+
+```bash
+cd dist/web
+python3 -m http.server 3000
+# or
+npx serve .
+```
+
+### Output Structure
+
+```
+dist/
+├── ios/TestingGround.app     (~83 MB)   Standalone iOS app
+├── android/app-release.apk   (~59 MB)   Standalone Android APK
+└── web/                                 Static web build (~252 KB)
+    ├── index.html
+    └── assets/
+```
+
+---
+
+## Build All (one-command)
+
+### Standalone build (all platforms to dist/)
+
+```bash
+./scripts/build-all.sh
+```
+
+This script:
+1. Generates offline JS bundles for iOS and Android
+2. Builds iOS .app (Debug, with embedded bundle)
+3. Builds Android Release APK (with embedded bundle)
+4. Builds Web production bundle
+5. Copies everything to `dist/`
+
+### Build specific targets
+
+```bash
+# iOS only
+./scripts/build-all.sh ios
+
+# Android only
+./scripts/build-all.sh android
+
+# Web only
+./scripts/build-all.sh web
+
+# iOS Native only
+./scripts/build-all.sh ios-native
+
+# All (default)
+./scripts/build-all.sh all
 ```
 
 ---
@@ -245,9 +334,7 @@ cd apps/ios-native
 xcodegen generate
 ```
 
-This reads `project.yml` and generates `TestingGround.xcodeproj`.
-
-### Build with command line
+### Build
 
 ```bash
 xcodebuild -project TestingGround.xcodeproj -scheme TestingGround \
@@ -258,11 +345,9 @@ xcodebuild -project TestingGround.xcodeproj -scheme TestingGround \
 ### Build and run
 
 ```bash
-# Boot simulator
 xcrun simctl boot "iPhone 17 Pro"
 open -a Simulator
 
-# Install and launch
 IOS_APP=$(find ~/Library/Developer/Xcode/DerivedData -path "*/Debug-iphonesimulator/TestingGround.app" -newer project.yml | head -1)
 xcrun simctl install "iPhone 17 Pro" "$IOS_APP"
 xcrun simctl launch "iPhone 17 Pro" com.testing.ground.TestingGround
@@ -277,25 +362,11 @@ xcodebuild test -project TestingGround.xcodeproj -scheme TestingGroundUITests \
 
 ---
 
-## Shared Scripts
-
-### Build all iOS apps
-
-```bash
-./scripts/build-all.sh
-```
-
-This script builds both the React Native iOS app and the iOS native app in sequence.
-
----
-
 ## Troubleshooting
 
 ### iOS: `React-VFS.yaml` not found
 
 **Symptom**: `virtual filesystem overlay file '/.../React-Core-prebuilt/React-VFS.yaml' not found`
-
-**Cause**: CocoaPods cached old absolute paths (common after moving the project directory).
 
 **Fix**:
 
@@ -304,62 +375,49 @@ cd apps/react-native/ios
 pod install
 ```
 
+### iOS: `HERMES_CLI_PATH` points to wrong path
+
+**Symptom**: Build fails with `hermesc: No such file or directory` at an incorrect path.
+
+**Fix**: Clean Pods and reinstall:
+
+```bash
+cd apps/react-native/ios
+rm -rf Pods "Local Podspecs"
+pod install
+```
+
 ### Android: Gradle `projectDirectory does not exist`
 
 **Symptom**: `Configuring project ':react-native-safe-area-context' without an existing directory is not allowed`
-
-**Cause**: Gradle `.gradle/` cache contains stale absolute paths to `node_modules`.
 
 **Fix**:
 
 ```bash
 cd apps/react-native/android
 rm -rf .gradle build
-# Then rebuild
 cd ..
 npx react-native run-android
 ```
 
-### Android: Metro bundler not connecting
+### iOS: "No script URL provided" (Development mode only)
 
-**Symptom**: App shows blank screen or "Unable to load script" on Android.
+**Symptom**: Red error screen when Metro is not running.
 
-**Fix**:
+**Fix** (development mode): Use `react-native run-ios` instead of `xcrun simctl launch`.
 
-```bash
-# Ensure Metro is running
-cd apps/react-native
-npm start
-
-# In another terminal, trigger reload on the emulator
-# Press 'R' twice in Metro terminal, or:
-$ANDROID_HOME/platform-tools/adb shell input text "RR"
-```
-
-### iOS: "No script URL provided"
-
-**Symptom**: Red error screen: `No script URL provided. Make sure the packager is running.`
-
-**Cause**: App was launched via `xcrun simctl launch` instead of `react-native run-ios`, so it doesn't know the Metro server URL.
-
-**Fix**:
+**Fix** (standalone mode): Ensure the offline bundle was generated before building:
 
 ```bash
-# Use react-native CLI to launch (it configures Metro connection)
-cd apps/react-native
-npx react-native run-ios --simulator="iPhone 17 Pro"
+ls apps/react-native/ios/main.jsbundle  # should exist
 ```
 
-Or if the app is already running, trigger a reload:
+### Android: Blank screen in standalone mode
+
+**Symptom**: Release APK shows blank screen.
+
+**Fix**: Ensure the offline bundle exists before building:
 
 ```bash
-curl http://localhost:8081/reload
+ls apps/react-native/android/app/src/main/assets/index.android.bundle  # should exist
 ```
-
-### TypeScript errors in `web/` directory
-
-**Symptom**: `Cannot find name 'document'` errors in `web/src/*.tsx` files.
-
-**Cause**: Root `tsconfig.json` was including web files that need DOM types.
-
-**Fix**: Already handled — `web` is excluded in `apps/react-native/tsconfig.json`.
